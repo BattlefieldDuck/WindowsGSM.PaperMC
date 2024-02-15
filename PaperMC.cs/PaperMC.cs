@@ -172,9 +172,7 @@ namespace WindowsGSM.Plugins
             }
 
             // Try getting the latest version and build
-            /// var build = await GetRemoteBuild(); // "1.16.1/133"
             var build = (await GetRemoteBuild()).Split('/'); // [0]="1.16.1", [1]="133"
-            /// if (string.IsNullOrWhiteSpace(build)) { return null; }
             if (build.Length<2) { return null; }
 
             // Download the latest paper.jar to /serverfiles
@@ -183,10 +181,7 @@ namespace WindowsGSM.Plugins
                 using (var webClient = new WebClient())
                 {
                     var downloadName = JObject.Parse(await webClient.DownloadStringTaskAsync($"https://api.papermc.io/v2/projects/paper/versions/{build[0]}/builds/{build[1]}"))["downloads"]["application"]["name"].ToString(); // "paper-1.20.4-424.jar"
-                    /// /*Debug only*/ await UI.CreateYesNoPromptV1("Variables2", $"Download name: {downloadName}", "OK", "OK");
-                    /// /*Debug only*/ await UI.CreateYesNoPromptV1("Variables2", $"URL:\nhttps://api.papermc.io/v2/projects/paper/versions/{build[0]}/builds/{build[1]}/downloads/{downloadName}", "OK", "OK");
                     await webClient.DownloadFileTaskAsync($"https://api.papermc.io/v2/projects/paper/versions/{build[0]}/builds/{build[1]}/downloads/{downloadName}", ServerPath.GetServersServerFiles(_serverData.ServerID, StartPath));
-                    /// await webClient.DownloadFileTaskAsync($"https://papermc.io/api/v1/paper/{build}/download", ServerPath.GetServersServerFiles(_serverData.ServerID, StartPath));
                 }
             }
             catch (Exception e)
@@ -229,15 +224,16 @@ namespace WindowsGSM.Plugins
             }
 
             // Try getting the latest version and build
-            var build = await GetRemoteBuild(); // "1.16.1/133"
-            if (string.IsNullOrWhiteSpace(build)) { return null; }
+            var build = (await GetRemoteBuild()).Split('/'); // [0]="1.16.1", [1]="133"
+            if (build.Length < 2) { return null; }
 
             // Download the latest paper.jar to /serverfiles
             try
             {
                 using (var webClient = new WebClient())
                 {
-                    await webClient.DownloadFileTaskAsync($"https://papermc.io/api/v1/paper/{build}/download", ServerPath.GetServersServerFiles(_serverData.ServerID, StartPath));
+                    var downloadName = JObject.Parse(await webClient.DownloadStringTaskAsync($"https://api.papermc.io/v2/projects/paper/versions/{build[0]}/builds/{build[1]}"))["downloads"]["application"]["name"].ToString(); // "paper-1.20.4-424.jar"
+                    await webClient.DownloadFileTaskAsync($"https://api.papermc.io/v2/projects/paper/versions/{build[0]}/builds/{build[1]}/downloads/{downloadName}", ServerPath.GetServersServerFiles(_serverData.ServerID, StartPath));
                 }
             }
             catch (Exception e)
@@ -300,7 +296,6 @@ namespace WindowsGSM.Plugins
                 {
                     var version = JObject.Parse(await webClient.DownloadStringTaskAsync("https://api.papermc.io/v2/projects/paper"))["versions"].Last.ToString(); // "1.16.1"
                     var build = JObject.Parse(await webClient.DownloadStringTaskAsync($"https://api.papermc.io/v2/projects/paper/versions/{version}"))["builds"].Last.ToString(); // "133"
-                    /// /*Debug only*/ await UI.CreateYesNoPromptV1("Variables", $"Version collected: {version}\nBuild collected: {build}", "OK", "OK");
                     return $"{version}/{build}";
                 }
             }
